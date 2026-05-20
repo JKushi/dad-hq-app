@@ -3,16 +3,16 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxZ_Ia93DBaiPq_Kqiwo
 
 const kidMessages = [
   {
-    name: "Message 1",
-    file: "audio/message1.mp3"
+    name: "Kid Message 1",
+    file: "message1.m4a"
   },
   {
-    name: "Message 2",
-    file: "audio/message2.mp3"
+    name: "Kid Message 2",
+    file: "message1.m4a"
   },
   {
-    name: "Message 3",
-    file: "audio/message3.mp3"
+    name: "Kid Message 3",
+    file: "message1.m4a"
   }
 ];
 
