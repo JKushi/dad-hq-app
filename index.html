@@ -1,1 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dad HQ</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
 
+<body>
+  <header class="app-header">
+    <h1>Dad HQ</h1>
+    <p>Property work logs, follow-ups, and kid-powered motivation.</p>
+  </header>
+
+  <main class="app-container">
+
+    <section class="card hero-card">
+      <h2>Need a Dad Boost?</h2>
+      <p>Tap the button for a random message from the kids.</p>
+      <button id="pickMeUpBtn" class="primary-btn">Play Pick-Me-Up</button>
+      <p id="messageLabel" class="small-text"></p>
+    </section>
+
+    <section class="card">
+      <h2>Add Work Log</h2>
+
+      <form id="workLogForm">
+        <label>
+          Date
+          <input type="date" id="logDate" required />
+        </label>
+
+        <label>
+          Property Name / Address
+          <input type="text" id="propertyName" placeholder="123 Main St" required />
+        </label>
+
+        <label>
+          Work Completed
+          <textarea id="workCompleted" placeholder="What did you do today?" required></textarea>
+        </label>
+
+        <label>
+          Issues Found
+          <textarea id="issuesFound" placeholder="Anything that needs attention?"></textarea>
+        </label>
+
+        <label>
+          Materials Used / Needed
+          <textarea id="materials" placeholder="Paint, screws, drywall, etc."></textarea>
+        </label>
+
+        <label>
+          Follow-Up Needed?
+          <select id="followUpNeeded">
+            <option value="No">No</option>
+            <option value="Yes">Yes</option>
+          </select>
+        </label>
+
+        <label>
+          Hours Worked
+          <input type="number" id="hoursWorked" min="0" step="0.25" placeholder="2.5" />
+        </label>
+
+        <button type="submit" class="primary-btn">Save Work Log</button>
+      </form>
+
+      <p id="saveStatus" class="small-text"></p>
+    </section>
+
+    <section class="card">
+      <h2>Search Logs</h2>
+
+      <input 
+        type="text" 
+        id="searchInput" 
+        placeholder="Search by property, date, work, issue, or material..." 
+      />
+
+      <div id="logResults" class="results"></div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Made with love for Dad.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
