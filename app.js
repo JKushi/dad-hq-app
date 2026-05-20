@@ -1,4 +1,4 @@
-const SCRIPT_URL = ""; 
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxZ_Ia93DBaiPq_Kqiwos6loOWebF_z5JnTJStVjAhTs1q10VP7AA40FD6YKOaXIp8KTg/exec"; 
 // Later we will paste your Google Apps Script web app URL here.
 
 const kidMessages = [
