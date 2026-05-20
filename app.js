@@ -8,7 +8,7 @@ const kidMessages = [
   },
   {
     name: "Kid Message 2",
-    file: "message1.m4a"
+    file: "message2.m4a"
   },
   {
     name: "Kid Message 3",
