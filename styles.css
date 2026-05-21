@@ -140,6 +140,14 @@ footer {
   color: #9ca3af;
   font-size: 0.9rem;
 }
+.family-image {
+  width: 100%;
+  max-height: 280px;
+  object-fit: cover;
+  border-radius: 16px;
+  margin-top: 15px;
+  display: none;
+}
 
 @media (max-width: 600px) {
   body {
