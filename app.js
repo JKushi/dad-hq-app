@@ -3,161 +3,346 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxODMbVigcjFX6pDaNyZ
 let familyImages = [];
 let kidMessages = [];
 
-let workLogs = JSON.parse(localStorage.getItem("workLogs")) || [];
+let workLogs =
+  JSON.parse(localStorage.getItem("workLogs")) || [];
 
-const workLogForm = document.getElementById("workLogForm");
-const saveStatus = document.getElementById("saveStatus");
-const searchInput = document.getElementById("searchInput");
-const logResults = document.getElementById("logResults");
-const pickMeUpBtn = document.getElementById("pickMeUpBtn");
-const messageLabel = document.getElementById("messageLabel");
+const workLogForm =
+  document.getElementById("workLogForm");
 
-document.getElementById("logDate").valueAsDate = new Date();
+const saveStatus =
+  document.getElementById("saveStatus");
 
-workLogForm.addEventListener("submit", function (event) {
-  event.preventDefault();
+const searchInput =
+  document.getElementById("searchInput");
 
-  const log = {
-    logId: crypto.randomUUID(),
-    date: document.getElementById("logDate").value,
-    propertyName: document.getElementById("propertyName").value.trim(),
-    workCompleted: document.getElementById("workCompleted").value.trim(),
-    issuesFound: document.getElementById("issuesFound").value.trim(),
-    materials: document.getElementById("materials").value.trim(),
-    followUpNeeded: document.getElementById("followUpNeeded").value,
-    hoursWorked: document.getElementById("hoursWorked").value,
-    createdAt: new Date().toISOString(),
-    isDeleted: "N",
-    deletedAt: ""
-  };
+const logResults =
+  document.getElementById("logResults");
 
-  workLogs.unshift(log);
-  localStorage.setItem("workLogs", JSON.stringify(workLogs));
+const pickMeUpBtn =
+  document.getElementById("pickMeUpBtn");
 
-  saveToGoogleSheet(log);
-
-  saveStatus.textContent = "Saved! Dad’s notes are officially less chaotic.";
-  workLogForm.reset();
-  document.getElementById("logDate").valueAsDate = new Date();
-
-  displayLogs(workLogs);
-});
-
-searchInput.addEventListener("input", function () {
-  const searchTerm = searchInput.value.toLowerCase();
-
-  const filteredLogs = workLogs.filter(log => {
-    const isActive = log.isDeleted !== "Y";
-
-    return isActive && (
-      log.date.toLowerCase().includes(searchTerm) ||
-      log.propertyName.toLowerCase().includes(searchTerm) ||
-      log.workCompleted.toLowerCase().includes(searchTerm) ||
-      log.issuesFound.toLowerCase().includes(searchTerm) ||
-      log.materials.toLowerCase().includes(searchTerm) ||
-      log.followUpNeeded.toLowerCase().includes(searchTerm)
-    );
-  });
-
-  displayLogs(filteredLogs);
-});
+const messageLabel =
+  document.getElementById("messageLabel");
 
 async function loadPickMeUpContent() {
-  if (!SCRIPT_URL) {
-    return;
-  }
 
   try {
+
     const response = await fetch(SCRIPT_URL);
+
     const data = await response.json();
 
     familyImages = data.images || [];
+
     kidMessages = data.audio || [];
 
-    console.log("Loaded family images:", familyImages);
-    console.log("Loaded kid audio:", kidMessages);
-
   } catch (error) {
-    console.error("Could not load Pick-Me-Up content:", error);
-    messageLabel.textContent = "Could not load family photos or kid messages.";
+
+    console.error(error);
   }
 }
 
 function showRandomFamilyImage() {
-  const familyImage = document.getElementById("familyImage");
 
-  if (!familyImage) {
-    console.error("familyImage element missing");
+  const familyImage =
+    document.getElementById("familyImage");
+
+  if (!familyImages.length) {
     return;
   }
 
-  if (!familyImages || familyImages.length === 0) {
-    console.warn("No family images found.");
-    return;
-  }
+  const randomIndex =
+    Math.floor(Math.random() * familyImages.length);
 
-  const randomIndex = Math.floor(Math.random() * familyImages.length);
-  const selectedImage = familyImages[randomIndex];
+  familyImage.src =
+    familyImages[randomIndex].url;
 
-  familyImage.src = selectedImage.url;
   familyImage.style.display = "block";
-
-  console.log("Showing image:", selectedImage);
 }
 
-pickMeUpBtn.addEventListener("click", async function () {
-  if (!kidMessages || kidMessages.length === 0) {
-    messageLabel.textContent = "No kid audio messages found.";
+pickMeUpBtn.addEventListener(
+  "click",
+  async function () {
+
     showRandomFamilyImage();
+
+    if (!kidMessages.length) {
+
+      messageLabel.textContent =
+        "No kid audio found.";
+
+      return;
+    }
+
+    const randomIndex =
+      Math.floor(Math.random() * kidMessages.length);
+
+    const selectedMessage =
+      kidMessages[randomIndex];
+
+    const audio =
+      new Audio(selectedMessage.url);
+
+    try {
+
+      await audio.play();
+
+      messageLabel.textContent =
+        `Playing: ${selectedMessage.name}`;
+
+    } catch (error) {
+
+      console.error(error);
+
+      messageLabel.textContent =
+        "Could not play audio.";
+    }
+  }
+);
+
+function updateDashboard() {
+
+  const activeLogs =
+    workLogs.filter(log => log.isDeleted !== "Y");
+
+  const uniqueProperties =
+    [...new Set(activeLogs.map(log => log.propertyName))];
+
+  const totalHours =
+    activeLogs.reduce((sum, log) => {
+      return sum + Number(log.hoursWorked || 0);
+    }, 0);
+
+  const followUps =
+    activeLogs.filter(log => log.followUpNeeded === "Yes");
+
+  document.getElementById("propertyCount").textContent =
+    uniqueProperties.length;
+
+  document.getElementById("hoursCount").textContent =
+    totalHours.toFixed(1);
+
+  document.getElementById("followUpCount").textContent =
+    followUps.length;
+
+  document.getElementById("todayLogs").textContent =
+    activeLogs.length + " Logs";
+
+  document.getElementById("openFollowUps").textContent =
+    followUps.length + " Open";
+
+  document.getElementById("activeProperties").textContent =
+    uniqueProperties.length + " Properties";
+
+  document.getElementById("weeklyHours").textContent =
+    totalHours.toFixed(1) + " Hours";
+}
+
+function scrollToLogForm() {
+
+  document
+    .getElementById("logFormSection")
+    .scrollIntoView({ behavior: "smooth" });
+}
+
+function startVoiceLog() {
+
+  alert(
+    "Future Feature: Voice-to-log AI processing."
+  );
+}
+
+function brainDump() {
+
+  const note = prompt(
+    "Quick brain dump — what’s on your mind?"
+  );
+
+  if (!note) {
     return;
   }
 
-  const randomIndex = Math.floor(Math.random() * kidMessages.length);
-  const selectedMessage = kidMessages[randomIndex];
+  alert("Brain dump captured. Future AI processing coming soon.");
+}
 
-  console.log("Attempting to play:", selectedMessage);
+function continuePreviousWork() {
 
-  const audio = new Audio(selectedMessage.url);
-
-  audio.addEventListener("error", function () {
-    console.error("Audio failed:", selectedMessage);
-    messageLabel.textContent = `Could not play: ${selectedMessage.name}`;
-  });
-
-  try {
-    await audio.play();
-    messageLabel.textContent = `Playing: ${selectedMessage.name}`;
-  } catch (error) {
-    console.error(error);
-    messageLabel.textContent = `Audio blocked or missing: ${selectedMessage.name}`;
+  if (!workLogs.length) {
+    alert("No previous work logs yet.");
+    return;
   }
 
-  showRandomFamilyImage();
-});
+  const latest =
+    workLogs.find(log => log.isDeleted !== "Y");
+
+  if (!latest) {
+    return;
+  }
+
+  document.getElementById("propertyName").value =
+    latest.propertyName;
+
+  document.getElementById("issuesFound").value =
+    latest.issuesFound;
+
+  document.getElementById("materials").value =
+    latest.materials;
+
+  scrollToLogForm();
+}
+
+workLogForm.addEventListener(
+  "submit",
+  function (event) {
+
+    event.preventDefault();
+
+    const log = {
+
+      logId: crypto.randomUUID(),
+
+      date:
+        document.getElementById("logDate").value,
+
+      propertyName:
+        document
+          .getElementById("propertyName")
+          .value
+          .trim(),
+
+      workCompleted:
+        document
+          .getElementById("workCompleted")
+          .value
+          .trim(),
+
+      issuesFound:
+        document
+          .getElementById("issuesFound")
+          .value
+          .trim(),
+
+      materials:
+        document
+          .getElementById("materials")
+          .value
+          .trim(),
+
+      followUpNeeded:
+        document
+          .getElementById("followUpNeeded")
+          .value,
+
+      hoursWorked:
+        document
+          .getElementById("hoursWorked")
+          .value,
+
+      createdAt:
+        new Date().toISOString(),
+
+      isDeleted: "N",
+
+      deletedAt: ""
+    };
+
+    workLogs.unshift(log);
+
+    localStorage.setItem(
+      "workLogs",
+      JSON.stringify(workLogs)
+    );
+
+    saveToGoogleSheet(log);
+
+    displayLogs(workLogs);
+
+    updateDashboard();
+
+    saveStatus.textContent =
+      "Saved successfully.";
+
+    workLogForm.reset();
+  }
+);
+
+searchInput.addEventListener(
+  "input",
+  function () {
+
+    const searchTerm =
+      searchInput.value.toLowerCase();
+
+    const filteredLogs =
+      workLogs.filter(log => {
+
+        const isActive =
+          log.isDeleted !== "Y";
+
+        return isActive && (
+
+          log.date.toLowerCase().includes(searchTerm) ||
+
+          log.propertyName.toLowerCase().includes(searchTerm) ||
+
+          log.workCompleted.toLowerCase().includes(searchTerm) ||
+
+          log.issuesFound.toLowerCase().includes(searchTerm) ||
+
+          log.materials.toLowerCase().includes(searchTerm)
+        );
+      });
+
+    displayLogs(filteredLogs);
+  }
+);
 
 function displayLogs(logs) {
+
   logResults.innerHTML = "";
 
-  const activeLogs = logs.filter(log => log.isDeleted !== "Y");
+  const activeLogs =
+    logs.filter(log => log.isDeleted !== "Y");
 
-  if (activeLogs.length === 0) {
-    logResults.innerHTML = "<p class='small-text'>No logs found yet.</p>";
+  if (!activeLogs.length) {
+
+    logResults.innerHTML =
+      "<p>No logs found.</p>";
+
     return;
   }
 
   activeLogs.forEach(log => {
-    const logCard = document.createElement("div");
+
+    const logCard =
+      document.createElement("div");
+
     logCard.className = "log-card";
 
     logCard.innerHTML = `
       <h3>${escapeHTML(log.propertyName)}</h3>
-      <p><strong>Date:</strong> ${escapeHTML(log.date)}</p>
-      <p><strong>Work Completed:</strong> ${escapeHTML(log.workCompleted)}</p>
-      <p><strong>Issues Found:</strong> ${escapeHTML(log.issuesFound || "None")}</p>
-      <p><strong>Materials:</strong> ${escapeHTML(log.materials || "None")}</p>
-      <p><strong>Follow-Up Needed:</strong> ${escapeHTML(log.followUpNeeded)}</p>
-      <p><strong>Hours:</strong> ${escapeHTML(log.hoursWorked || "Not entered")}</p>
-      <button class="delete-btn" onclick="softDeleteLog('${log.logId}')">Delete</button>
+
+      <p><strong>Date:</strong>
+      ${escapeHTML(log.date)}</p>
+
+      <p><strong>Work:</strong>
+      ${escapeHTML(log.workCompleted)}</p>
+
+      <p><strong>Issues:</strong>
+      ${escapeHTML(log.issuesFound || "None")}</p>
+
+      <p><strong>Materials:</strong>
+      ${escapeHTML(log.materials || "None")}</p>
+
+      <p><strong>Hours:</strong>
+      ${escapeHTML(log.hoursWorked || "0")}</p>
+
+      <button
+        class="delete-btn"
+        onclick="softDeleteLog('${log.logId}')"
+      >
+        Delete
+      </button>
     `;
 
     logResults.appendChild(logCard);
@@ -165,49 +350,67 @@ function displayLogs(logs) {
 }
 
 function softDeleteLog(logId) {
-  const confirmDelete = confirm("Soft delete this work log?");
+
+  const confirmDelete =
+    confirm("Soft delete this log?");
 
   if (!confirmDelete) {
     return;
   }
 
   workLogs = workLogs.map(log => {
+
     if (log.logId === logId) {
+
       return {
+
         ...log,
+
         isDeleted: "Y",
-        deletedAt: new Date().toISOString()
+
+        deletedAt:
+          new Date().toISOString()
       };
     }
 
     return log;
   });
 
-  localStorage.setItem("workLogs", JSON.stringify(workLogs));
+  localStorage.setItem(
+    "workLogs",
+    JSON.stringify(workLogs)
+  );
+
   displayLogs(workLogs);
+
+  updateDashboard();
 }
 
 async function saveToGoogleSheet(log) {
-  if (!SCRIPT_URL) {
-    console.log("Google Sheets connection not set up.");
-    return;
-  }
 
   try {
+
     await fetch(SCRIPT_URL, {
+
       method: "POST",
+
       mode: "no-cors",
+
       headers: {
         "Content-Type": "application/json"
       },
+
       body: JSON.stringify(log)
     });
+
   } catch (error) {
-    console.error("Could not save to Google Sheet:", error);
+
+    console.error(error);
   }
 }
 
 function escapeHTML(value) {
+
   return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -217,4 +420,7 @@ function escapeHTML(value) {
 }
 
 loadPickMeUpContent();
+
+updateDashboard();
+
 displayLogs(workLogs);
