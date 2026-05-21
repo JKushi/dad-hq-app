@@ -1,4 +1,4 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxODMbVigcjFX6pDaNyZpzagYolMB21OlvMoqek6ehm0I7FDDLNgkvHgcB-zkbu7OqvgQ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwK08hGnIQXWmwvIQQXX4WRCBla9m8_bWdYKkSAg8AtMTvqN9d9qO4H20HAONyss91T/exec";
 
 let familyImages = [];
 let kidMessages = [];
