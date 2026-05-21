@@ -8,11 +8,11 @@ const kidMessages = [
   },
   {
     name: "Kid Message 2",
-    file: "message2.m4a"
+    file: "message 2.m4a"
   },
   {
     name: "Kid Message 3",
-    file: "message1.m4a"
+    file: "message 3.m4a"
   }
 ];
 
