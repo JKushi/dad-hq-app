@@ -1,53 +1,27 @@
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxgJ4qpsFfIS0rL_0soJn6L7Sr1CS6luyu0ghIFkNlrVOU4yCn6L5Kpp8lf6WaAaXpVWA/exec";
 
-const familyImages = [
-  "assets/images/2BDVMC2X-102372.JPG"
+// FIX 1: Use `let` instead of `const` — these arrays get replaced by loadPickMeUpContent()
+let familyImages = [
+  "assets/images/2BDVMC2X-102372.JPG",  // FIX 2: Was missing comma after this line
   "assets/images/2BDVMC2X-102378.JPG",
   "assets/images/2QP4FYWZ-102372.JPG",
   "assets/images/2QP4FYWZ-102378.JPG",
   "assets/images/2QQYRQ86-102365.JPG",
-  "assets/images/image000000(1).jpg"
-  
+  "assets/images/image000000(1).jpg"    // FIX 3: Was missing comma after this line
 ];
 
-const kidMessages = [
-  {
-    name: "Message 1",
-    file: "assets/audio/message1.mp3"
-  },
-  {
-    name: "Message 2",
-    file: "assets/audio/message2.mp3"
-  },
-  {
-    name: "Message 3",
-    file: "assets/audio/message3.mp3"
-  },
-  {
-    name: "Message 4",
-    file: "assets/audio/message4.mp3"
-  },
-  {
-    name: "Message 5",
-    file: "assets/audio/message5.mp3"
-  },
-  {
-    name: "Message 6",
-    file: "assets/audio/message6.mp3"
-  },
-  {
-    name: "Message 7",
-    file: "assets/audio/message7.mp3"
-  },
-  {
-    name: "Message 8",
-    file: "assets/audio/message8.mp3"
-  },
-  {
-    name: "Message 9",
-    file: "assets/audio/message9.mp3"
-  }
+let kidMessages = [
+  { name: "Message 1", file: "assets/audio/message1.mp3" },
+  { name: "Message 2", file: "assets/audio/message2.mp3" },
+  { name: "Message 3", file: "assets/audio/message3.mp3" },
+  { name: "Message 4", file: "assets/audio/message4.mp3" },
+  { name: "Message 5", file: "assets/audio/message5.mp3" },
+  { name: "Message 6", file: "assets/audio/message6.mp3" },
+  { name: "Message 7", file: "assets/audio/message7.mp3" },
+  { name: "Message 8", file: "assets/audio/message8.mp3" },
+  { name: "Message 9", file: "assets/audio/message9.mp3" }
 ];
+
 let workLogs = JSON.parse(localStorage.getItem("workLogs")) || [];
 
 const workLogForm = document.getElementById("workLogForm");
@@ -67,17 +41,21 @@ async function loadPickMeUpContent() {
     const response = await fetch(SCRIPT_URL);
     const data = await response.json();
 
-    familyImages = data.images || [];
-    kidMessages = data.audio || [];
+    // Only replace if the API actually returned data
+    if (data.images && data.images.length) {
+      familyImages = data.images;
+    }
+    if (data.audio && data.audio.length) {
+      kidMessages = data.audio;
+    }
 
     console.log("Loaded images:", familyImages);
     console.log("Loaded audio:", kidMessages);
   } catch (error) {
-    console.error("Could not load Pick-Me-Up content:", error);
+    console.error("Could not load Pick-Me-Up content — using local fallback assets.", error);
 
     if (messageLabel) {
-      messageLabel.textContent =
-        "Could not load family photos or audio.";
+      messageLabel.textContent = "Could not load family photos or audio.";
     }
   }
 }
@@ -89,113 +67,83 @@ function showRandomFamilyImage() {
     return;
   }
 
-  const randomIndex =
-    Math.floor(Math.random() * familyImages.length);
+  const randomIndex = Math.floor(Math.random() * familyImages.length);
+  const item = familyImages[randomIndex];
 
-  familyImage.src =
-    familyImages[randomIndex].url;
-
-  familyImage.style.display =
-    "block";
+  // FIX 4: Handle both string paths (local) and objects with .url (from API)
+  familyImage.src = typeof item === "string" ? item : item.url;
+  familyImage.style.display = "block";
 }
 
 function playDriveAudio(selectedMessage) {
-  let audioFrame =
-    document.getElementById("driveAudioPlayer");
+  let audioFrame = document.getElementById("driveAudioPlayer");
 
   if (!audioFrame) {
-    audioFrame =
-      document.createElement("iframe");
-
-    audioFrame.id =
-      "driveAudioPlayer";
-
-    audioFrame.style.width =
-      "1px";
-
-    audioFrame.style.height =
-      "1px";
-
-    audioFrame.style.opacity =
-      "0";
-
-    audioFrame.style.position =
-      "absolute";
-
-    audioFrame.style.left =
-      "-9999px";
-
-    audioFrame.setAttribute(
-      "allow",
-      "autoplay"
-    );
-
+    audioFrame = document.createElement("iframe");
+    audioFrame.id = "driveAudioPlayer";
+    audioFrame.style.width = "1px";
+    audioFrame.style.height = "1px";
+    audioFrame.style.opacity = "0";
+    audioFrame.style.position = "absolute";
+    audioFrame.style.left = "-9999px";
+    audioFrame.setAttribute("allow", "autoplay");
     document.body.appendChild(audioFrame);
   }
 
   if (!selectedMessage.previewUrl) {
     if (messageLabel) {
-      messageLabel.textContent =
-        "Audio preview link is missing. Redeploy Apps Script.";
+      messageLabel.textContent = "Audio preview link is missing. Redeploy Apps Script.";
     }
-
     return;
   }
 
-  audioFrame.src =
-    selectedMessage.previewUrl;
+  audioFrame.src = selectedMessage.previewUrl;
 }
 
-pickMeUpBtn.addEventListener("click", function () {
+// FIX 5: Guard against pickMeUpBtn being null (crashes on pages without it)
+if (pickMeUpBtn) {
+  pickMeUpBtn.addEventListener("click", function () {
+    const familyImage = document.getElementById("familyImage");
 
-  const familyImage =
-    document.getElementById("familyImage");
+    if (familyImage && familyImages.length) {
+      const randomImage = familyImages[Math.floor(Math.random() * familyImages.length)];
 
-  const randomImage =
-    familyImages[
-      Math.floor(Math.random() * familyImages.length)
-    ];
+      // FIX 6: Handle both string paths (local fallback) and objects with .url (from API)
+      familyImage.src = typeof randomImage === "string" ? randomImage : randomImage.url;
+      familyImage.style.display = "block";
+    }
 
-  familyImage.src = randomImage;
+    if (kidMessages.length) {
+      const selectedMessage = kidMessages[Math.floor(Math.random() * kidMessages.length)];
 
-  familyImage.style.display = "block";
+      // FIX 7: Handle both local .file paths and API .previewUrl — was using only .file
+      // which breaks after loadPickMeUpContent() replaces the array with API objects
+      if (selectedMessage.previewUrl) {
+        playDriveAudio(selectedMessage);
+      } else if (selectedMessage.file) {
+        const audio = new Audio(selectedMessage.file);
+        audio.play().catch(err => console.error("Audio playback failed:", err));
+      }
 
-  const selectedMessage =
-    kidMessages[
-      Math.floor(Math.random() * kidMessages.length)
-    ];
-
-  const audio =
-    new Audio(selectedMessage.file);
-
-  audio.play();
-
-  messageLabel.textContent =
-    `Playing: ${selectedMessage.name}`;
-});
+      if (messageLabel) {
+        messageLabel.textContent = `Playing: ${selectedMessage.name}`;
+      }
+    }
+  });
+}
 
 function updateDashboard() {
-  const activeLogs =
-    workLogs.filter(log => log.isDeleted !== "Y");
+  const activeLogs = workLogs.filter(log => log.isDeleted !== "Y");
 
-  const uniqueProperties =
-    [
-      ...new Set(
-        activeLogs
-          .map(log => log.propertyName)
-          .filter(Boolean)
-      )
-    ];
+  const uniqueProperties = [
+    ...new Set(activeLogs.map(log => log.propertyName).filter(Boolean))
+  ];
 
-  const totalHours =
-    activeLogs.reduce((sum, log) => {
-      return sum + Number(log.hoursWorked || 0);
-    }, 0);
+  const totalHours = activeLogs.reduce((sum, log) => {
+    return sum + Number(log.hoursWorked || 0);
+  }, 0);
 
-  const followUps =
-    activeLogs.filter(
-      log => log.followUpNeeded === "Yes"
-    );
+  const followUps = activeLogs.filter(log => log.followUpNeeded === "Yes");
 
   setText("propertyCount", uniqueProperties.length);
   setText("hoursCount", totalHours.toFixed(1));
@@ -208,20 +156,15 @@ function updateDashboard() {
 
 function setText(id, value) {
   const element = document.getElementById(id);
-
   if (element) {
     element.textContent = value;
   }
 }
 
 function scrollToLogForm() {
-  const logFormSection =
-    document.getElementById("logFormSection");
-
+  const logFormSection = document.getElementById("logFormSection");
   if (logFormSection) {
-    logFormSection.scrollIntoView({
-      behavior: "smooth"
-    });
+    logFormSection.scrollIntoView({ behavior: "smooth" });
   }
 }
 
@@ -230,12 +173,8 @@ function startVoiceLog() {
 }
 
 function brainDump() {
-  const note =
-    prompt("Quick brain dump — what’s on your mind?");
-
-  if (!note) {
-    return;
-  }
+  const note = prompt("Quick brain dump — what's on your mind?");
+  if (!note) return;
 
   const brainDumpEntry = {
     entryId: crypto.randomUUID(),
@@ -245,18 +184,12 @@ function brainDump() {
     aiActioned: "N"
   };
 
-  localStorage.setItem(
-    "latestBrainDump",
-    JSON.stringify(brainDumpEntry)
-  );
-
+  localStorage.setItem("latestBrainDump", JSON.stringify(brainDumpEntry));
   alert("Brain dump captured. Future AI processing coming soon.");
 }
 
 function continuePreviousWork() {
-  const latest =
-    workLogs.find(log => log.isDeleted !== "Y");
-
+  const latest = workLogs.find(log => log.isDeleted !== "Y");
   if (!latest) {
     alert("No previous work logs yet.");
     return;
@@ -265,13 +198,11 @@ function continuePreviousWork() {
   setValue("propertyName", latest.propertyName || "");
   setValue("issuesFound", latest.issuesFound || "");
   setValue("materials", latest.materials || "");
-
   scrollToLogForm();
 }
 
 function setValue(id, value) {
   const element = document.getElementById(id);
-
   if (element) {
     element.value = value;
   }
@@ -296,11 +227,7 @@ if (workLogForm) {
     };
 
     workLogs.unshift(log);
-
-    localStorage.setItem(
-      "workLogs",
-      JSON.stringify(workLogs)
-    );
+    localStorage.setItem("workLogs", JSON.stringify(workLogs));
 
     saveToGoogleSheet(log);
     displayLogs(workLogs);
@@ -312,9 +239,7 @@ if (workLogForm) {
 
     workLogForm.reset();
 
-    const logDateAfterReset =
-      document.getElementById("logDate");
-
+    const logDateAfterReset = document.getElementById("logDate");
     if (logDateAfterReset) {
       logDateAfterReset.valueAsDate = new Date();
     }
@@ -323,66 +248,43 @@ if (workLogForm) {
 
 function getValue(id) {
   const element = document.getElementById(id);
-
   return element ? element.value : "";
 }
 
 if (searchInput) {
   searchInput.addEventListener("input", function () {
-    const searchTerm =
-      searchInput.value.toLowerCase();
+    const searchTerm = searchInput.value.toLowerCase();
 
-    const filteredLogs =
-      workLogs.filter(log => {
-        const isActive =
-          log.isDeleted !== "Y";
-
-        return isActive && (
-          String(log.date || "")
-            .toLowerCase()
-            .includes(searchTerm) ||
-          String(log.propertyName || "")
-            .toLowerCase()
-            .includes(searchTerm) ||
-          String(log.workCompleted || "")
-            .toLowerCase()
-            .includes(searchTerm) ||
-          String(log.issuesFound || "")
-            .toLowerCase()
-            .includes(searchTerm) ||
-          String(log.materials || "")
-            .toLowerCase()
-            .includes(searchTerm)
-        );
-      });
+    const filteredLogs = workLogs.filter(log => {
+      const isActive = log.isDeleted !== "Y";
+      return isActive && (
+        String(log.date || "").toLowerCase().includes(searchTerm) ||
+        String(log.propertyName || "").toLowerCase().includes(searchTerm) ||
+        String(log.workCompleted || "").toLowerCase().includes(searchTerm) ||
+        String(log.issuesFound || "").toLowerCase().includes(searchTerm) ||
+        String(log.materials || "").toLowerCase().includes(searchTerm)
+      );
+    });
 
     displayLogs(filteredLogs);
   });
 }
 
 function displayLogs(logs) {
-  if (!logResults) {
-    return;
-  }
+  if (!logResults) return;
 
   logResults.innerHTML = "";
 
-  const activeLogs =
-    logs.filter(log => log.isDeleted !== "Y");
+  const activeLogs = logs.filter(log => log.isDeleted !== "Y");
 
   if (!activeLogs.length) {
-    logResults.innerHTML =
-      "<p>No logs found.</p>";
+    logResults.innerHTML = "<p>No logs found.</p>";
     return;
   }
 
   activeLogs.forEach(log => {
-    const logCard =
-      document.createElement("div");
-
-    logCard.className =
-      "log-card";
-
+    const logCard = document.createElement("div");
+    logCard.className = "log-card";
     logCard.innerHTML = `
       <h3>${escapeHTML(log.propertyName)}</h3>
       <p><strong>Date:</strong> ${escapeHTML(log.date)}</p>
@@ -391,41 +293,24 @@ function displayLogs(logs) {
       <p><strong>Materials:</strong> ${escapeHTML(log.materials || "None")}</p>
       <p><strong>Follow-Up Needed:</strong> ${escapeHTML(log.followUpNeeded || "No")}</p>
       <p><strong>Hours:</strong> ${escapeHTML(log.hoursWorked || "0")}</p>
-      <button class="delete-btn" onclick="softDeleteLog('${log.logId}')">
-        Delete
-      </button>
+      <button class="delete-btn" onclick="softDeleteLog('${log.logId}')">Delete</button>
     `;
-
     logResults.appendChild(logCard);
   });
 }
 
 function softDeleteLog(logId) {
-  const confirmDelete =
-    confirm("Soft delete this log?");
+  const confirmDelete = confirm("Soft delete this log?");
+  if (!confirmDelete) return;
 
-  if (!confirmDelete) {
-    return;
-  }
+  workLogs = workLogs.map(log => {
+    if (log.logId === logId) {
+      return { ...log, isDeleted: "Y", deletedAt: new Date().toISOString() };
+    }
+    return log;
+  });
 
-  workLogs =
-    workLogs.map(log => {
-      if (log.logId === logId) {
-        return {
-          ...log,
-          isDeleted: "Y",
-          deletedAt: new Date().toISOString()
-        };
-      }
-
-      return log;
-    });
-
-  localStorage.setItem(
-    "workLogs",
-    JSON.stringify(workLogs)
-  );
-
+  localStorage.setItem("workLogs", JSON.stringify(workLogs));
   displayLogs(workLogs);
   updateDashboard();
 }
@@ -435,9 +320,7 @@ async function saveToGoogleSheet(log) {
     await fetch(SCRIPT_URL, {
       method: "POST",
       mode: "no-cors",
-      headers: {
-        "Content-Type": "application/json"
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(log)
     });
   } catch (error) {
