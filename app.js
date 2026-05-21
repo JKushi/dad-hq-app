@@ -13,6 +13,30 @@ const kidMessages = [
   {
     name: "Kid Message 3",
     file: "message 3.m4a"
+  },
+  {
+    name: "Kid Message 4",
+    file: "message 4.m4a"
+  },
+  {
+    name: "Kid Message 5",
+    file: "message 5.m4a"
+  },
+  {
+    name: "Kid Message 6",
+    file: "message6.m4a"
+  },
+  {
+    name: "Kid Message 7",
+    file: "message7.m4a"
+  },
+  {
+    name: "Kid Message 8",
+    file: "message8.m4a"
+  },
+  {
+    name: "Kid Message 9",
+    file: "message9.m4a"
   }
 ];
 
