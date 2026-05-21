@@ -1,59 +1,188 @@
+html
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Dad HQ</title>
+
   <link rel="stylesheet" href="styles.css" />
 </head>
 
 <body>
+
   <header class="app-header">
-    <h1>Dad HQ</h1>
-    <p>Property work logs, follow-ups, and kid-powered motivation.</p>
+
+    <div class="hero-overlay">
+
+      <h1>Dad HQ</h1>
+
+      <p>
+        Your personalized property operations headquarters.
+      </p>
+
+      <div class="hero-stats">
+
+        <div class="hero-stat-card">
+          <span class="hero-stat-number" id="propertyCount">0</span>
+          <span class="hero-stat-label">Properties</span>
+        </div>
+
+        <div class="hero-stat-card">
+          <span class="hero-stat-number" id="hoursCount">0</span>
+          <span class="hero-stat-label">Hours</span>
+        </div>
+
+        <div class="hero-stat-card">
+          <span class="hero-stat-number" id="followUpCount">0</span>
+          <span class="hero-stat-label">Follow Ups</span>
+        </div>
+
+      </div>
+
+    </div>
+
   </header>
 
   <main class="app-container">
 
-    <section class="card hero-card">
+    <section class="card motivation-card">
+
       <h2>Need a Dad Boost?</h2>
-      <p>Tap the button for a random message from the kids.</p>
-      <button id="pickMeUpBtn" class="primary-btn">Play Pick-Me-Up</button>
-      <img id="familyImage" class="family-image" alt="Family photo" />
+
+      <p>
+        Family-powered motivation system.
+      </p>
+
+      <button id="pickMeUpBtn" class="primary-btn">
+        🎧 Play Pick-Me-Up
+      </button>
+
       <p id="messageLabel" class="small-text"></p>
+
+      <img
+        id="familyImage"
+        class="family-image"
+        alt="Family photo"
+      />
+
     </section>
 
-    <section class="card">
+    <section class="dashboard-grid">
+
+      <div class="dashboard-card">
+        <h3>📋 Today's Work</h3>
+        <p id="todayLogs">0 Logs</p>
+      </div>
+
+      <div class="dashboard-card">
+        <h3>⚠️ Open Follow-Ups</h3>
+        <p id="openFollowUps">0 Open</p>
+      </div>
+
+      <div class="dashboard-card">
+        <h3>🏢 Active Properties</h3>
+        <p id="activeProperties">0 Properties</p>
+      </div>
+
+      <div class="dashboard-card">
+        <h3>⏱️ Hours This Week</h3>
+        <p id="weeklyHours">0 Hours</p>
+      </div>
+
+    </section>
+
+    <section class="card quick-actions">
+
+      <h2>Quick Actions</h2>
+
+      <div class="action-grid">
+
+        <button class="action-btn" onclick="scrollToLogForm()">
+          ➕ Add Work Log
+        </button>
+
+        <button class="action-btn" onclick="startVoiceLog()">
+          🎤 Voice Log
+        </button>
+
+        <button class="action-btn" onclick="brainDump()">
+          🧠 Brain Dump
+        </button>
+
+        <button class="action-btn" onclick="continuePreviousWork()">
+          🔧 Continue Previous Work
+        </button>
+
+      </div>
+
+    </section>
+
+    <section class="card ai-card">
+
+      <h2>AI Assistant Insights</h2>
+
+      <div id="aiInsights">
+
+        <div class="insight-card">
+          <strong>Reminder:</strong>
+          Continue building Dad HQ into a legendary Father's Day gift.
+        </div>
+
+      </div>
+
+    </section>
+
+    <section class="card" id="logFormSection">
+
       <h2>Add Work Log</h2>
 
       <form id="workLogForm">
+
         <label>
           Date
           <input type="date" id="logDate" required />
         </label>
 
         <label>
-          Property Name / Address
-          <input type="text" id="propertyName" placeholder="123 Main St" required />
+          Property Name
+          <input
+            type="text"
+            id="propertyName"
+            placeholder="Royal Center"
+            required
+          />
         </label>
 
         <label>
           Work Completed
-          <textarea id="workCompleted" placeholder="What did you do today?" required></textarea>
+          <textarea
+            id="workCompleted"
+            placeholder="Describe work completed"
+            required
+          ></textarea>
         </label>
 
         <label>
           Issues Found
-          <textarea id="issuesFound" placeholder="Anything that needs attention?"></textarea>
+          <textarea
+            id="issuesFound"
+            placeholder="Issues discovered"
+          ></textarea>
         </label>
 
         <label>
-          Materials Used / Needed
-          <textarea id="materials" placeholder="Paint, screws, drywall, etc."></textarea>
+          Materials Used
+          <textarea
+            id="materials"
+            placeholder="PVC, sealant, drywall"
+          ></textarea>
         </label>
 
         <label>
-          Follow-Up Needed?
+          Follow-Up Needed
           <select id="followUpNeeded">
             <option value="No">No</option>
             <option value="Yes">Yes</option>
@@ -62,25 +191,56 @@
 
         <label>
           Hours Worked
-          <input type="number" id="hoursWorked" min="0" step="0.25" placeholder="2.5" />
+          <input
+            type="number"
+            id="hoursWorked"
+            min="0"
+            step="0.25"
+          />
         </label>
 
-        <button type="submit" class="primary-btn">Save Work Log</button>
+        <div class="status-tags">
+
+          <button type="button" class="tag-btn">
+            Completed
+          </button>
+
+          <button type="button" class="tag-btn">
+            Needs Return Visit
+          </button>
+
+          <button type="button" class="tag-btn">
+            Emergency
+          </button>
+
+          <button type="button" class="tag-btn">
+            Waiting on Materials
+          </button>
+
+        </div>
+
+        <button type="submit" class="primary-btn">
+          Save Work Log
+        </button>
+
       </form>
 
       <p id="saveStatus" class="small-text"></p>
+
     </section>
 
     <section class="card">
-      <h2>Search Logs</h2>
 
-      <input 
-        type="text" 
-        id="searchInput" 
-        placeholder="Search by property, date, work, issue, or material..." 
+      <h2>Search Work Logs</h2>
+
+      <input
+        type="text"
+        id="searchInput"
+        placeholder="Search by property, issue, materials, work..."
       />
 
       <div id="logResults" class="results"></div>
+
     </section>
 
   </main>
@@ -90,5 +250,6 @@
   </footer>
 
   <script src="app.js"></script>
+
 </body>
 </html>
