@@ -63,7 +63,9 @@ workLogForm.addEventListener("submit", function (event) {
     materials: document.getElementById("materials").value.trim(),
     followUpNeeded: document.getElementById("followUpNeeded").value,
     hoursWorked: document.getElementById("hoursWorked").value,
-    createdAt: new Date().toISOString()
+    createdAt: new Date().toISOString(),
+    isDeleted: "N",
+    deletedAt: ""
   };
 
   workLogs.unshift(log);
@@ -82,15 +84,17 @@ searchInput.addEventListener("input", function () {
   const searchTerm = searchInput.value.toLowerCase();
 
   const filteredLogs = workLogs.filter(log => {
-    return (
-      log.date.toLowerCase().includes(searchTerm) ||
-      log.propertyName.toLowerCase().includes(searchTerm) ||
-      log.workCompleted.toLowerCase().includes(searchTerm) ||
-      log.issuesFound.toLowerCase().includes(searchTerm) ||
-      log.materials.toLowerCase().includes(searchTerm) ||
-      log.followUpNeeded.toLowerCase().includes(searchTerm)
-    );
-  });
+  const isActive = log.isDeleted !== "Y";
+
+  return isActive && (
+    log.date.toLowerCase().includes(searchTerm) ||
+    log.propertyName.toLowerCase().includes(searchTerm) ||
+    log.workCompleted.toLowerCase().includes(searchTerm) ||
+    log.issuesFound.toLowerCase().includes(searchTerm) ||
+    log.materials.toLowerCase().includes(searchTerm) ||
+    log.followUpNeeded.toLowerCase().includes(searchTerm)
+  );
+});
 
   displayLogs(filteredLogs);
 });
@@ -113,12 +117,14 @@ pickMeUpBtn.addEventListener("click", function () {
 function displayLogs(logs) {
   logResults.innerHTML = "";
 
-  if (logs.length === 0) {
+  const activeLogs = logs.filter(log => log.isDeleted !== "Y");
+
+  if (activeLogs.length === 0) {
     logResults.innerHTML = "<p class='small-text'>No logs found yet.</p>";
     return;
   }
 
-  logs.forEach(log => {
+  activeLogs.forEach(log => {
     const logCard = document.createElement("div");
     logCard.className = "log-card";
 
@@ -130,11 +136,35 @@ function displayLogs(logs) {
       <p><strong>Materials:</strong> ${escapeHTML(log.materials || "None")}</p>
       <p><strong>Follow-Up Needed:</strong> ${escapeHTML(log.followUpNeeded)}</p>
       <p><strong>Hours:</strong> ${escapeHTML(log.hoursWorked || "Not entered")}</p>
+      <button class="delete-btn" onclick="softDeleteLog('${log.logId}')">Delete</button>
     `;
 
     logResults.appendChild(logCard);
   });
 }
+function softDeleteLog(logId) {
+  const confirmDelete = confirm("Soft delete this work log? It will be hidden but not permanently removed.");
+
+  if (!confirmDelete) {
+    return;
+  }
+
+  workLogs = workLogs.map(log => {
+    if (log.logId === logId) {
+      return {
+        ...log,
+        isDeleted: "Y",
+        deletedAt: new Date().toISOString()
+      };
+    }
+
+    return log;
+  });
+
+  localStorage.setItem("workLogs", JSON.stringify(workLogs));
+  displayLogs(workLogs);
+}
+
 
 async function saveToGoogleSheet(log) {
   if (!SCRIPT_URL) {
