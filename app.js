@@ -1,11 +1,13 @@
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxgJ4qpsFfIS0rL_0soJn6L7Sr1CS6luyu0ghIFkNlrVOU4yCn6L5Kpp8lf6WaAaXpVWA/exec";
 
 const familyImages = [
-  "assets/images/2BDVMC2X-102372.jpg",
-  "assets/images/2BDVMC2X-102378.jpg",
-  "assets/images/2QP4FYWZ-102372.jpg",
-  "assets/images/2QP4FYWZ-102378.jpg",
-  "assets/images/2QQYRQ86-102365.jpg"
+  "assets/images/2BDVMC2X-102372.JPG"
+  "assets/images/2BDVMC2X-102378.JPG",
+  "assets/images/2QP4FYWZ-102372.JPG",
+  "assets/images/2QP4FYWZ-102378.JPG",
+  "assets/images/2QQYRQ86-102365.JPG",
+  "assets/images/image000000(1).jpg"
+  
 ];
 
 const kidMessages = [
