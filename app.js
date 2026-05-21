@@ -146,7 +146,6 @@ function playDriveAudio(selectedMessage) {
     selectedMessage.previewUrl;
 }
 
-if (pickMeUpBtn) {
 pickMeUpBtn.addEventListener("click", function () {
 
   const familyImage =
@@ -174,7 +173,6 @@ pickMeUpBtn.addEventListener("click", function () {
   messageLabel.textContent =
     `Playing: ${selectedMessage.name}`;
 });
-}
 
 function updateDashboard() {
   const activeLogs =
