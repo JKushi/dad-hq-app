@@ -1,6 +1,6 @@
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxZ_Ia93DBaiPq_Kqiwos6loOWebF_z5JnTJStVjAhTs1q10VP7AA40FD6YKOaXIp8KTg/exec"; 
 // Later we will paste your Google Apps Script web app URL here.
-
+let familyImages = [];
 const kidMessages = [
   {
     name: "Kid Message 1",
@@ -98,7 +98,30 @@ searchInput.addEventListener("input", function () {
 
   displayLogs(filteredLogs);
 });
+async function loadFamilyImages() {
+  if (!SCRIPT_URL) {
+    return;
+  }
 
+  try {
+    const response = await fetch(SCRIPT_URL);
+    familyImages = await response.json();
+  } catch (error) {
+    console.error("Could not load family images:", error);
+  }
+}
+
+function showRandomFamilyImage() {
+  const familyImage = document.getElementById("familyImage");
+
+  if (!familyImages || familyImages.length === 0) {
+    return;
+  }
+
+  const randomIndex = Math.floor(Math.random() * familyImages.length);
+  familyImage.src = familyImages[randomIndex].url;
+  familyImage.style.display = "block";
+}
 pickMeUpBtn.addEventListener("click", function () {
   if (kidMessages.length === 0) {
     messageLabel.textContent = "No kid messages added yet.";
@@ -110,7 +133,7 @@ pickMeUpBtn.addEventListener("click", function () {
 
   const audio = new Audio(selectedMessage.file);
   audio.play();
-
+showRandomFamilyImage();
   messageLabel.textContent = `Playing: ${selectedMessage.name}`;
 });
 
@@ -142,6 +165,7 @@ function displayLogs(logs) {
     logResults.appendChild(logCard);
   });
 }
+
 function softDeleteLog(logId) {
   const confirmDelete = confirm("Soft delete this work log? It will be hidden but not permanently removed.");
 
@@ -194,5 +218,6 @@ function escapeHTML(value) {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
 }
+loadFamilyImages();
 
 displayLogs(workLogs);
