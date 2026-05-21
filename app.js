@@ -2,30 +2,15 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwK08hGnIQXWmwvIQQXX
 
 let familyImages = [];
 let kidMessages = [];
+let workLogs = JSON.parse(localStorage.getItem("workLogs")) || [];
 
-let workLogs =
-  JSON.parse(localStorage.getItem("workLogs")) || [];
-
-const workLogForm =
-  document.getElementById("workLogForm");
-
-const saveStatus =
-  document.getElementById("saveStatus");
-
-const searchInput =
-  document.getElementById("searchInput");
-
-const logResults =
-  document.getElementById("logResults");
-
-const pickMeUpBtn =
-  document.getElementById("pickMeUpBtn");
-
-const messageLabel =
-  document.getElementById("messageLabel");
-
-const logDate =
-  document.getElementById("logDate");
+const workLogForm = document.getElementById("workLogForm");
+const saveStatus = document.getElementById("saveStatus");
+const searchInput = document.getElementById("searchInput");
+const logResults = document.getElementById("logResults");
+const pickMeUpBtn = document.getElementById("pickMeUpBtn");
+const messageLabel = document.getElementById("messageLabel");
+const logDate = document.getElementById("logDate");
 
 if (logDate) {
   logDate.valueAsDate = new Date();
@@ -52,27 +37,17 @@ async function loadPickMeUpContent() {
 }
 
 function showRandomFamilyImage() {
-  const familyImage =
-    document.getElementById("familyImage");
+  const familyImage = document.getElementById("familyImage");
 
-  if (!familyImage) {
-    console.warn("familyImage element not found.");
-    return;
-  }
-
-  if (!familyImages || familyImages.length === 0) {
-    console.warn("No family images loaded.");
+  if (!familyImage || !familyImages.length) {
     return;
   }
 
   const randomIndex =
     Math.floor(Math.random() * familyImages.length);
 
-  const selectedImage =
-    familyImages[randomIndex];
-
   familyImage.src =
-    selectedImage.url;
+    familyImages[randomIndex].url;
 
   familyImage.style.display =
     "block";
@@ -112,52 +87,45 @@ function playDriveAudio(selectedMessage) {
     document.body.appendChild(audioFrame);
   }
 
-  const audioUrl =
-    selectedMessage.previewUrl ||
-    selectedMessage.url;
-
-  if (!audioUrl) {
+  if (!selectedMessage.previewUrl) {
     if (messageLabel) {
       messageLabel.textContent =
-        "Audio link is missing.";
+        "Audio preview link is missing. Redeploy Apps Script.";
     }
 
     return;
   }
 
   audioFrame.src =
-    audioUrl;
+    selectedMessage.previewUrl;
 }
 
 if (pickMeUpBtn) {
-  pickMeUpBtn.addEventListener(
-    "click",
-    function () {
-      showRandomFamilyImage();
+  pickMeUpBtn.addEventListener("click", function () {
+    showRandomFamilyImage();
 
-      if (!kidMessages || kidMessages.length === 0) {
-        if (messageLabel) {
-          messageLabel.textContent =
-            "No kid audio found.";
-        }
-
-        return;
-      }
-
-      const randomIndex =
-        Math.floor(Math.random() * kidMessages.length);
-
-      const selectedMessage =
-        kidMessages[randomIndex];
-
-      playDriveAudio(selectedMessage);
-
+    if (!kidMessages.length) {
       if (messageLabel) {
         messageLabel.textContent =
-          `Playing: ${selectedMessage.name}`;
+          "No kid audio found.";
       }
+
+      return;
     }
-  );
+
+    const randomIndex =
+      Math.floor(Math.random() * kidMessages.length);
+
+    const selectedMessage =
+      kidMessages[randomIndex];
+
+    playDriveAudio(selectedMessage);
+
+    if (messageLabel) {
+      messageLabel.textContent =
+        `Playing: ${selectedMessage.name}`;
+    }
+  });
 }
 
 function updateDashboard() {
@@ -183,60 +151,20 @@ function updateDashboard() {
       log => log.followUpNeeded === "Yes"
     );
 
-  const propertyCount =
-    document.getElementById("propertyCount");
+  setText("propertyCount", uniqueProperties.length);
+  setText("hoursCount", totalHours.toFixed(1));
+  setText("followUpCount", followUps.length);
+  setText("todayLogs", activeLogs.length + " Logs");
+  setText("openFollowUps", followUps.length + " Open");
+  setText("activeProperties", uniqueProperties.length + " Properties");
+  setText("weeklyHours", totalHours.toFixed(1) + " Hours");
+}
 
-  const hoursCount =
-    document.getElementById("hoursCount");
+function setText(id, value) {
+  const element = document.getElementById(id);
 
-  const followUpCount =
-    document.getElementById("followUpCount");
-
-  const todayLogs =
-    document.getElementById("todayLogs");
-
-  const openFollowUps =
-    document.getElementById("openFollowUps");
-
-  const activeProperties =
-    document.getElementById("activeProperties");
-
-  const weeklyHours =
-    document.getElementById("weeklyHours");
-
-  if (propertyCount) {
-    propertyCount.textContent =
-      uniqueProperties.length;
-  }
-
-  if (hoursCount) {
-    hoursCount.textContent =
-      totalHours.toFixed(1);
-  }
-
-  if (followUpCount) {
-    followUpCount.textContent =
-      followUps.length;
-  }
-
-  if (todayLogs) {
-    todayLogs.textContent =
-      activeLogs.length + " Logs";
-  }
-
-  if (openFollowUps) {
-    openFollowUps.textContent =
-      followUps.length + " Open";
-  }
-
-  if (activeProperties) {
-    activeProperties.textContent =
-      uniqueProperties.length + " Properties";
-  }
-
-  if (weeklyHours) {
-    weeklyHours.textContent =
-      totalHours.toFixed(1) + " Hours";
+  if (element) {
+    element.textContent = value;
   }
 }
 
@@ -252,16 +180,12 @@ function scrollToLogForm() {
 }
 
 function startVoiceLog() {
-  alert(
-    "Future Feature: Voice-to-log AI processing."
-  );
+  alert("Future Feature: Voice-to-log AI processing.");
 }
 
 function brainDump() {
   const note =
-    prompt(
-      "Quick brain dump — what’s on your mind?"
-    );
+    prompt("Quick brain dump — what’s on your mind?");
 
   if (!note) {
     return;
@@ -280,175 +204,114 @@ function brainDump() {
     JSON.stringify(brainDumpEntry)
   );
 
-  alert(
-    "Brain dump captured. Future AI processing coming soon."
-  );
+  alert("Brain dump captured. Future AI processing coming soon.");
 }
 
 function continuePreviousWork() {
-  if (!workLogs.length) {
-    alert("No previous work logs yet.");
-    return;
-  }
-
   const latest =
     workLogs.find(log => log.isDeleted !== "Y");
 
   if (!latest) {
-    alert("No active previous logs found.");
+    alert("No previous work logs yet.");
     return;
   }
 
-  const propertyName =
-    document.getElementById("propertyName");
-
-  const issuesFound =
-    document.getElementById("issuesFound");
-
-  const materials =
-    document.getElementById("materials");
-
-  if (propertyName) {
-    propertyName.value =
-      latest.propertyName || "";
-  }
-
-  if (issuesFound) {
-    issuesFound.value =
-      latest.issuesFound || "";
-  }
-
-  if (materials) {
-    materials.value =
-      latest.materials || "";
-  }
+  setValue("propertyName", latest.propertyName || "");
+  setValue("issuesFound", latest.issuesFound || "");
+  setValue("materials", latest.materials || "");
 
   scrollToLogForm();
 }
 
+function setValue(id, value) {
+  const element = document.getElementById(id);
+
+  if (element) {
+    element.value = value;
+  }
+}
+
 if (workLogForm) {
-  workLogForm.addEventListener(
-    "submit",
-    function (event) {
-      event.preventDefault();
+  workLogForm.addEventListener("submit", function (event) {
+    event.preventDefault();
 
-      const log = {
-        logId: crypto.randomUUID(),
+    const log = {
+      logId: crypto.randomUUID(),
+      date: getValue("logDate"),
+      propertyName: getValue("propertyName").trim(),
+      workCompleted: getValue("workCompleted").trim(),
+      issuesFound: getValue("issuesFound").trim(),
+      materials: getValue("materials").trim(),
+      followUpNeeded: getValue("followUpNeeded"),
+      hoursWorked: getValue("hoursWorked"),
+      createdAt: new Date().toISOString(),
+      isDeleted: "N",
+      deletedAt: ""
+    };
 
-        date:
-          document.getElementById("logDate").value,
+    workLogs.unshift(log);
 
-        propertyName:
-          document
-            .getElementById("propertyName")
-            .value
-            .trim(),
+    localStorage.setItem(
+      "workLogs",
+      JSON.stringify(workLogs)
+    );
 
-        workCompleted:
-          document
-            .getElementById("workCompleted")
-            .value
-            .trim(),
+    saveToGoogleSheet(log);
+    displayLogs(workLogs);
+    updateDashboard();
 
-        issuesFound:
-          document
-            .getElementById("issuesFound")
-            .value
-            .trim(),
-
-        materials:
-          document
-            .getElementById("materials")
-            .value
-            .trim(),
-
-        followUpNeeded:
-          document
-            .getElementById("followUpNeeded")
-            .value,
-
-        hoursWorked:
-          document
-            .getElementById("hoursWorked")
-            .value,
-
-        createdAt:
-          new Date().toISOString(),
-
-        isDeleted: "N",
-
-        deletedAt: ""
-      };
-
-      workLogs.unshift(log);
-
-      localStorage.setItem(
-        "workLogs",
-        JSON.stringify(workLogs)
-      );
-
-      saveToGoogleSheet(log);
-
-      displayLogs(workLogs);
-
-      updateDashboard();
-
-      if (saveStatus) {
-        saveStatus.textContent =
-          "Saved successfully.";
-      }
-
-      workLogForm.reset();
-
-      const logDateAfterReset =
-        document.getElementById("logDate");
-
-      if (logDateAfterReset) {
-        logDateAfterReset.valueAsDate =
-          new Date();
-      }
+    if (saveStatus) {
+      saveStatus.textContent = "Saved successfully.";
     }
-  );
+
+    workLogForm.reset();
+
+    const logDateAfterReset =
+      document.getElementById("logDate");
+
+    if (logDateAfterReset) {
+      logDateAfterReset.valueAsDate = new Date();
+    }
+  });
+}
+
+function getValue(id) {
+  const element = document.getElementById(id);
+
+  return element ? element.value : "";
 }
 
 if (searchInput) {
-  searchInput.addEventListener(
-    "input",
-    function () {
-      const searchTerm =
-        searchInput.value.toLowerCase();
+  searchInput.addEventListener("input", function () {
+    const searchTerm =
+      searchInput.value.toLowerCase();
 
-      const filteredLogs =
-        workLogs.filter(log => {
-          const isActive =
-            log.isDeleted !== "Y";
+    const filteredLogs =
+      workLogs.filter(log => {
+        const isActive =
+          log.isDeleted !== "Y";
 
-          return isActive && (
-            String(log.date || "")
-              .toLowerCase()
-              .includes(searchTerm) ||
+        return isActive && (
+          String(log.date || "")
+            .toLowerCase()
+            .includes(searchTerm) ||
+          String(log.propertyName || "")
+            .toLowerCase()
+            .includes(searchTerm) ||
+          String(log.workCompleted || "")
+            .toLowerCase()
+            .includes(searchTerm) ||
+          String(log.issuesFound || "")
+            .toLowerCase()
+            .includes(searchTerm) ||
+          String(log.materials || "")
+            .toLowerCase()
+            .includes(searchTerm)
+        );
+      });
 
-            String(log.propertyName || "")
-              .toLowerCase()
-              .includes(searchTerm) ||
-
-            String(log.workCompleted || "")
-              .toLowerCase()
-              .includes(searchTerm) ||
-
-            String(log.issuesFound || "")
-              .toLowerCase()
-              .includes(searchTerm) ||
-
-            String(log.materials || "")
-              .toLowerCase()
-              .includes(searchTerm)
-          );
-        });
-
-      displayLogs(filteredLogs);
-    }
-  );
+    displayLogs(filteredLogs);
+  });
 }
 
 function displayLogs(logs) {
@@ -464,7 +327,6 @@ function displayLogs(logs) {
   if (!activeLogs.length) {
     logResults.innerHTML =
       "<p>No logs found.</p>";
-
     return;
   }
 
@@ -477,29 +339,13 @@ function displayLogs(logs) {
 
     logCard.innerHTML = `
       <h3>${escapeHTML(log.propertyName)}</h3>
-
-      <p><strong>Date:</strong>
-      ${escapeHTML(log.date)}</p>
-
-      <p><strong>Work:</strong>
-      ${escapeHTML(log.workCompleted)}</p>
-
-      <p><strong>Issues:</strong>
-      ${escapeHTML(log.issuesFound || "None")}</p>
-
-      <p><strong>Materials:</strong>
-      ${escapeHTML(log.materials || "None")}</p>
-
-      <p><strong>Follow-Up Needed:</strong>
-      ${escapeHTML(log.followUpNeeded || "No")}</p>
-
-      <p><strong>Hours:</strong>
-      ${escapeHTML(log.hoursWorked || "0")}</p>
-
-      <button
-        class="delete-btn"
-        onclick="softDeleteLog('${log.logId}')"
-      >
+      <p><strong>Date:</strong> ${escapeHTML(log.date)}</p>
+      <p><strong>Work:</strong> ${escapeHTML(log.workCompleted)}</p>
+      <p><strong>Issues:</strong> ${escapeHTML(log.issuesFound || "None")}</p>
+      <p><strong>Materials:</strong> ${escapeHTML(log.materials || "None")}</p>
+      <p><strong>Follow-Up Needed:</strong> ${escapeHTML(log.followUpNeeded || "No")}</p>
+      <p><strong>Hours:</strong> ${escapeHTML(log.hoursWorked || "0")}</p>
+      <button class="delete-btn" onclick="softDeleteLog('${log.logId}')">
         Delete
       </button>
     `;
@@ -522,8 +368,7 @@ function softDeleteLog(logId) {
         return {
           ...log,
           isDeleted: "Y",
-          deletedAt:
-            new Date().toISOString()
+          deletedAt: new Date().toISOString()
         };
       }
 
@@ -536,7 +381,6 @@ function softDeleteLog(logId) {
   );
 
   displayLogs(workLogs);
-
   updateDashboard();
 }
 
@@ -546,17 +390,12 @@ async function saveToGoogleSheet(log) {
       method: "POST",
       mode: "no-cors",
       headers: {
-        "Content-Type":
-          "application/json"
+        "Content-Type": "application/json"
       },
-      body:
-        JSON.stringify(log)
+      body: JSON.stringify(log)
     });
   } catch (error) {
-    console.error(
-      "Could not save log:",
-      error
-    );
+    console.error("Could not save log:", error);
   }
 }
 
@@ -570,7 +409,5 @@ function escapeHTML(value) {
 }
 
 loadPickMeUpContent();
-
 updateDashboard();
-
 displayLogs(workLogs);
