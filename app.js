@@ -5,39 +5,39 @@ let familyImages = [];
 const kidMessages = [
   {
     name: "Kid Message 1",
-    file: "message1.m4a"
+    file: "message1.mp3"
   },
   {
     name: "Kid Message 2",
-    file: "message 2.m4a"
+    file: "message2.mp3"
   },
   {
     name: "Kid Message 3",
-    file: "message 3.m4a"
+    file: "message3.mp3"
   },
   {
     name: "Kid Message 4",
-    file: "message 4.m4a"
+    file: "message4.mp3"
   },
   {
     name: "Kid Message 5",
-    file: "message 5.m4a"
+    file: "message5.mp3"
   },
   {
     name: "Kid Message 6",
-    file: "message6.m4a"
+    file: "message6.mp3"
   },
   {
     name: "Kid Message 7",
-    file: "message7.m4a"
+    file: "message7.mp3"
   },
   {
     name: "Kid Message 8",
-    file: "message8.m4a"
+    file: "message8.mp3"
   },
   {
     name: "Kid Message 9",
-    file: "message9.m4a"
+    file: "message9.mp3"
   }
 ];
 
