@@ -1,7 +1,51 @@
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwK08hGnIQXWmwvIQQXX4WRCBla9m8_bWdYKkSAg8AtMTvqN9d9qO4H20HAONyss91T/exec";
 
-let familyImages = [];
-let kidMessages = [];
+const familyImages = [
+  "assets/images/2BDVMC2X-102372.jpg",
+  "assets/images/2BDVMC2X-102378.jpg",
+  "assets/images/2QP4FYWZ-102372.jpg",
+  "assets/images/2QP4FYWZ-102378.jpg",
+  "assets/images/2QQYRQ86-102365.jpg"
+];
+
+const kidMessages = [
+  {
+    name: "Message 1",
+    file: "assets/audio/message1.mp3"
+  },
+  {
+    name: "Message 2",
+    file: "assets/audio/message2.mp3"
+  },
+  {
+    name: "Message 3",
+    file: "assets/audio/message3.mp3"
+  },
+  {
+    name: "Message 4",
+    file: "assets/audio/message4.mp3"
+  },
+  {
+    name: "Message 5",
+    file: "assets/audio/message5.mp3"
+  },
+  {
+    name: "Message 6",
+    file: "assets/audio/message6.mp3"
+  },
+  {
+    name: "Message 7",
+    file: "assets/audio/message7.mp3"
+  },
+  {
+    name: "Message 8",
+    file: "assets/audio/message8.mp3"
+  },
+  {
+    name: "Message 9",
+    file: "assets/audio/message9.mp3"
+  }
+];
 let workLogs = JSON.parse(localStorage.getItem("workLogs")) || [];
 
 const workLogForm = document.getElementById("workLogForm");
