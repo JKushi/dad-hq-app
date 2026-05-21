@@ -24,99 +24,154 @@ const pickMeUpBtn =
 const messageLabel =
   document.getElementById("messageLabel");
 
+const logDate =
+  document.getElementById("logDate");
+
+if (logDate) {
+  logDate.valueAsDate = new Date();
+}
+
 async function loadPickMeUpContent() {
-
   try {
-
     const response = await fetch(SCRIPT_URL);
-
     const data = await response.json();
 
     familyImages = data.images || [];
-
     kidMessages = data.audio || [];
 
+    console.log("Loaded images:", familyImages);
+    console.log("Loaded audio:", kidMessages);
   } catch (error) {
+    console.error("Could not load Pick-Me-Up content:", error);
 
-    console.error(error);
+    if (messageLabel) {
+      messageLabel.textContent =
+        "Could not load family photos or audio.";
+    }
   }
 }
 
 function showRandomFamilyImage() {
-
   const familyImage =
     document.getElementById("familyImage");
 
-  if (!familyImages.length) {
+  if (!familyImage) {
+    console.warn("familyImage element not found.");
+    return;
+  }
+
+  if (!familyImages || familyImages.length === 0) {
+    console.warn("No family images loaded.");
     return;
   }
 
   const randomIndex =
     Math.floor(Math.random() * familyImages.length);
 
-  familyImage.src =
-    familyImages[randomIndex].url;
+  const selectedImage =
+    familyImages[randomIndex];
 
-  familyImage.style.display = "block";
+  familyImage.src =
+    selectedImage.url;
+
+  familyImage.style.display =
+    "block";
 }
 
-pickMeUpBtn.addEventListener(
-  "click",
-  function () {
-
-    showRandomFamilyImage();
-
-    if (!kidMessages.length) {
-
-      messageLabel.textContent =
-        "No kid audio found.";
-
-      return;
-    }
-
-    const randomIndex =
-      Math.floor(Math.random() * kidMessages.length);
-
-    const selectedMessage =
-      kidMessages[randomIndex];
-
-    playDriveAudio(selectedMessage);
-
-    messageLabel.textContent =
-      `Playing: ${selectedMessage.name}`;
-  }
-);
-
 function playDriveAudio(selectedMessage) {
-
   let audioFrame =
     document.getElementById("driveAudioPlayer");
 
   if (!audioFrame) {
-
     audioFrame =
       document.createElement("iframe");
 
     audioFrame.id =
       "driveAudioPlayer";
 
-    audioFrame.style.display =
-      "none";
+    audioFrame.style.width =
+      "1px";
+
+    audioFrame.style.height =
+      "1px";
+
+    audioFrame.style.opacity =
+      "0";
+
+    audioFrame.style.position =
+      "absolute";
+
+    audioFrame.style.left =
+      "-9999px";
+
+    audioFrame.setAttribute(
+      "allow",
+      "autoplay"
+    );
 
     document.body.appendChild(audioFrame);
   }
 
+  const audioUrl =
+    selectedMessage.previewUrl ||
+    selectedMessage.url;
+
+  if (!audioUrl) {
+    if (messageLabel) {
+      messageLabel.textContent =
+        "Audio link is missing.";
+    }
+
+    return;
+  }
+
   audioFrame.src =
-    selectedMessage.previewUrl;
+    audioUrl;
+}
+
+if (pickMeUpBtn) {
+  pickMeUpBtn.addEventListener(
+    "click",
+    function () {
+      showRandomFamilyImage();
+
+      if (!kidMessages || kidMessages.length === 0) {
+        if (messageLabel) {
+          messageLabel.textContent =
+            "No kid audio found.";
+        }
+
+        return;
+      }
+
+      const randomIndex =
+        Math.floor(Math.random() * kidMessages.length);
+
+      const selectedMessage =
+        kidMessages[randomIndex];
+
+      playDriveAudio(selectedMessage);
+
+      if (messageLabel) {
+        messageLabel.textContent =
+          `Playing: ${selectedMessage.name}`;
+      }
+    }
+  );
 }
 
 function updateDashboard() {
-
   const activeLogs =
     workLogs.filter(log => log.isDeleted !== "Y");
 
   const uniqueProperties =
-    [...new Set(activeLogs.map(log => log.propertyName))];
+    [
+      ...new Set(
+        activeLogs
+          .map(log => log.propertyName)
+          .filter(Boolean)
+      )
+    ];
 
   const totalHours =
     activeLogs.reduce((sum, log) => {
@@ -124,59 +179,113 @@ function updateDashboard() {
     }, 0);
 
   const followUps =
-    activeLogs.filter(log => log.followUpNeeded === "Yes");
+    activeLogs.filter(
+      log => log.followUpNeeded === "Yes"
+    );
 
-  document.getElementById("propertyCount").textContent =
-    uniqueProperties.length;
+  const propertyCount =
+    document.getElementById("propertyCount");
 
-  document.getElementById("hoursCount").textContent =
-    totalHours.toFixed(1);
+  const hoursCount =
+    document.getElementById("hoursCount");
 
-  document.getElementById("followUpCount").textContent =
-    followUps.length;
+  const followUpCount =
+    document.getElementById("followUpCount");
 
-  document.getElementById("todayLogs").textContent =
-    activeLogs.length + " Logs";
+  const todayLogs =
+    document.getElementById("todayLogs");
 
-  document.getElementById("openFollowUps").textContent =
-    followUps.length + " Open";
+  const openFollowUps =
+    document.getElementById("openFollowUps");
 
-  document.getElementById("activeProperties").textContent =
-    uniqueProperties.length + " Properties";
+  const activeProperties =
+    document.getElementById("activeProperties");
 
-  document.getElementById("weeklyHours").textContent =
-    totalHours.toFixed(1) + " Hours";
+  const weeklyHours =
+    document.getElementById("weeklyHours");
+
+  if (propertyCount) {
+    propertyCount.textContent =
+      uniqueProperties.length;
+  }
+
+  if (hoursCount) {
+    hoursCount.textContent =
+      totalHours.toFixed(1);
+  }
+
+  if (followUpCount) {
+    followUpCount.textContent =
+      followUps.length;
+  }
+
+  if (todayLogs) {
+    todayLogs.textContent =
+      activeLogs.length + " Logs";
+  }
+
+  if (openFollowUps) {
+    openFollowUps.textContent =
+      followUps.length + " Open";
+  }
+
+  if (activeProperties) {
+    activeProperties.textContent =
+      uniqueProperties.length + " Properties";
+  }
+
+  if (weeklyHours) {
+    weeklyHours.textContent =
+      totalHours.toFixed(1) + " Hours";
+  }
 }
 
 function scrollToLogForm() {
+  const logFormSection =
+    document.getElementById("logFormSection");
 
-  document
-    .getElementById("logFormSection")
-    .scrollIntoView({ behavior: "smooth" });
+  if (logFormSection) {
+    logFormSection.scrollIntoView({
+      behavior: "smooth"
+    });
+  }
 }
 
 function startVoiceLog() {
-
   alert(
     "Future Feature: Voice-to-log AI processing."
   );
 }
 
 function brainDump() {
-
-  const note = prompt(
-    "Quick brain dump — what’s on your mind?"
-  );
+  const note =
+    prompt(
+      "Quick brain dump — what’s on your mind?"
+    );
 
   if (!note) {
     return;
   }
 
-  alert("Brain dump captured. Future AI processing coming soon.");
+  const brainDumpEntry = {
+    entryId: crypto.randomUUID(),
+    dateCreated: new Date().toISOString(),
+    rawThought: note,
+    processed: "N",
+    aiActioned: "N"
+  };
+
+  localStorage.setItem(
+    "latestBrainDump",
+    JSON.stringify(brainDumpEntry)
+  );
+
+  alert(
+    "Brain dump captured. Future AI processing coming soon."
+  );
 }
 
 function continuePreviousWork() {
-
   if (!workLogs.length) {
     alert("No previous work logs yet.");
     return;
@@ -186,128 +295,166 @@ function continuePreviousWork() {
     workLogs.find(log => log.isDeleted !== "Y");
 
   if (!latest) {
+    alert("No active previous logs found.");
     return;
   }
 
-  document.getElementById("propertyName").value =
-    latest.propertyName;
+  const propertyName =
+    document.getElementById("propertyName");
 
-  document.getElementById("issuesFound").value =
-    latest.issuesFound;
+  const issuesFound =
+    document.getElementById("issuesFound");
 
-  document.getElementById("materials").value =
-    latest.materials;
+  const materials =
+    document.getElementById("materials");
+
+  if (propertyName) {
+    propertyName.value =
+      latest.propertyName || "";
+  }
+
+  if (issuesFound) {
+    issuesFound.value =
+      latest.issuesFound || "";
+  }
+
+  if (materials) {
+    materials.value =
+      latest.materials || "";
+  }
 
   scrollToLogForm();
 }
 
-workLogForm.addEventListener(
-  "submit",
-  function (event) {
+if (workLogForm) {
+  workLogForm.addEventListener(
+    "submit",
+    function (event) {
+      event.preventDefault();
 
-    event.preventDefault();
+      const log = {
+        logId: crypto.randomUUID(),
 
-    const log = {
+        date:
+          document.getElementById("logDate").value,
 
-      logId: crypto.randomUUID(),
+        propertyName:
+          document
+            .getElementById("propertyName")
+            .value
+            .trim(),
 
-      date:
-        document.getElementById("logDate").value,
+        workCompleted:
+          document
+            .getElementById("workCompleted")
+            .value
+            .trim(),
 
-      propertyName:
-        document
-          .getElementById("propertyName")
-          .value
-          .trim(),
+        issuesFound:
+          document
+            .getElementById("issuesFound")
+            .value
+            .trim(),
 
-      workCompleted:
-        document
-          .getElementById("workCompleted")
-          .value
-          .trim(),
+        materials:
+          document
+            .getElementById("materials")
+            .value
+            .trim(),
 
-      issuesFound:
-        document
-          .getElementById("issuesFound")
-          .value
-          .trim(),
+        followUpNeeded:
+          document
+            .getElementById("followUpNeeded")
+            .value,
 
-      materials:
-        document
-          .getElementById("materials")
-          .value
-          .trim(),
+        hoursWorked:
+          document
+            .getElementById("hoursWorked")
+            .value,
 
-      followUpNeeded:
-        document
-          .getElementById("followUpNeeded")
-          .value,
+        createdAt:
+          new Date().toISOString(),
 
-      hoursWorked:
-        document
-          .getElementById("hoursWorked")
-          .value,
+        isDeleted: "N",
 
-      createdAt:
-        new Date().toISOString(),
+        deletedAt: ""
+      };
 
-      isDeleted: "N",
+      workLogs.unshift(log);
 
-      deletedAt: ""
-    };
+      localStorage.setItem(
+        "workLogs",
+        JSON.stringify(workLogs)
+      );
 
-    workLogs.unshift(log);
+      saveToGoogleSheet(log);
 
-    localStorage.setItem(
-      "workLogs",
-      JSON.stringify(workLogs)
-    );
+      displayLogs(workLogs);
 
-    saveToGoogleSheet(log);
+      updateDashboard();
 
-    displayLogs(workLogs);
+      if (saveStatus) {
+        saveStatus.textContent =
+          "Saved successfully.";
+      }
 
-    updateDashboard();
+      workLogForm.reset();
 
-    saveStatus.textContent =
-      "Saved successfully.";
+      const logDateAfterReset =
+        document.getElementById("logDate");
 
-    workLogForm.reset();
-  }
-);
+      if (logDateAfterReset) {
+        logDateAfterReset.valueAsDate =
+          new Date();
+      }
+    }
+  );
+}
 
-searchInput.addEventListener(
-  "input",
-  function () {
+if (searchInput) {
+  searchInput.addEventListener(
+    "input",
+    function () {
+      const searchTerm =
+        searchInput.value.toLowerCase();
 
-    const searchTerm =
-      searchInput.value.toLowerCase();
+      const filteredLogs =
+        workLogs.filter(log => {
+          const isActive =
+            log.isDeleted !== "Y";
 
-    const filteredLogs =
-      workLogs.filter(log => {
+          return isActive && (
+            String(log.date || "")
+              .toLowerCase()
+              .includes(searchTerm) ||
 
-        const isActive =
-          log.isDeleted !== "Y";
+            String(log.propertyName || "")
+              .toLowerCase()
+              .includes(searchTerm) ||
 
-        return isActive && (
+            String(log.workCompleted || "")
+              .toLowerCase()
+              .includes(searchTerm) ||
 
-          log.date.toLowerCase().includes(searchTerm) ||
+            String(log.issuesFound || "")
+              .toLowerCase()
+              .includes(searchTerm) ||
 
-          log.propertyName.toLowerCase().includes(searchTerm) ||
+            String(log.materials || "")
+              .toLowerCase()
+              .includes(searchTerm)
+          );
+        });
 
-          log.workCompleted.toLowerCase().includes(searchTerm) ||
-
-          log.issuesFound.toLowerCase().includes(searchTerm) ||
-
-          log.materials.toLowerCase().includes(searchTerm)
-        );
-      });
-
-    displayLogs(filteredLogs);
-  }
-);
+      displayLogs(filteredLogs);
+    }
+  );
+}
 
 function displayLogs(logs) {
+  if (!logResults) {
+    return;
+  }
 
   logResults.innerHTML = "";
 
@@ -315,7 +462,6 @@ function displayLogs(logs) {
     logs.filter(log => log.isDeleted !== "Y");
 
   if (!activeLogs.length) {
-
     logResults.innerHTML =
       "<p>No logs found.</p>";
 
@@ -323,11 +469,11 @@ function displayLogs(logs) {
   }
 
   activeLogs.forEach(log => {
-
     const logCard =
       document.createElement("div");
 
-    logCard.className = "log-card";
+    logCard.className =
+      "log-card";
 
     logCard.innerHTML = `
       <h3>${escapeHTML(log.propertyName)}</h3>
@@ -343,6 +489,9 @@ function displayLogs(logs) {
 
       <p><strong>Materials:</strong>
       ${escapeHTML(log.materials || "None")}</p>
+
+      <p><strong>Follow-Up Needed:</strong>
+      ${escapeHTML(log.followUpNeeded || "No")}</p>
 
       <p><strong>Hours:</strong>
       ${escapeHTML(log.hoursWorked || "0")}</p>
@@ -360,7 +509,6 @@ function displayLogs(logs) {
 }
 
 function softDeleteLog(logId) {
-
   const confirmDelete =
     confirm("Soft delete this log?");
 
@@ -368,23 +516,19 @@ function softDeleteLog(logId) {
     return;
   }
 
-  workLogs = workLogs.map(log => {
+  workLogs =
+    workLogs.map(log => {
+      if (log.logId === logId) {
+        return {
+          ...log,
+          isDeleted: "Y",
+          deletedAt:
+            new Date().toISOString()
+        };
+      }
 
-    if (log.logId === logId) {
-
-      return {
-
-        ...log,
-
-        isDeleted: "Y",
-
-        deletedAt:
-          new Date().toISOString()
-      };
-    }
-
-    return log;
-  });
+      return log;
+    });
 
   localStorage.setItem(
     "workLogs",
@@ -397,30 +541,26 @@ function softDeleteLog(logId) {
 }
 
 async function saveToGoogleSheet(log) {
-
   try {
-
     await fetch(SCRIPT_URL, {
-
       method: "POST",
-
       mode: "no-cors",
-
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type":
+          "application/json"
       },
-
-      body: JSON.stringify(log)
+      body:
+        JSON.stringify(log)
     });
-
   } catch (error) {
-
-    console.error(error);
+    console.error(
+      "Could not save log:",
+      error
+    );
   }
 }
 
 function escapeHTML(value) {
-
   return String(value)
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
