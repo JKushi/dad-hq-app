@@ -145,31 +145,33 @@ function playDriveAudio(selectedMessage) {
 }
 
 if (pickMeUpBtn) {
-  pickMeUpBtn.addEventListener("click", function () {
-    showRandomFamilyImage();
+pickMeUpBtn.addEventListener("click", function () {
 
-    if (!kidMessages.length) {
-      if (messageLabel) {
-        messageLabel.textContent =
-          "No kid audio found.";
-      }
+  const familyImage =
+    document.getElementById("familyImage");
 
-      return;
-    }
+  const randomImage =
+    familyImages[
+      Math.floor(Math.random() * familyImages.length)
+    ];
 
-    const randomIndex =
-      Math.floor(Math.random() * kidMessages.length);
+  familyImage.src = randomImage;
 
-    const selectedMessage =
-      kidMessages[randomIndex];
+  familyImage.style.display = "block";
 
-    playDriveAudio(selectedMessage);
+  const selectedMessage =
+    kidMessages[
+      Math.floor(Math.random() * kidMessages.length)
+    ];
 
-    if (messageLabel) {
-      messageLabel.textContent =
-        `Playing: ${selectedMessage.name}`;
-    }
-  });
+  const audio =
+    new Audio(selectedMessage.file);
+
+  audio.play();
+
+  messageLabel.textContent =
+    `Playing: ${selectedMessage.name}`;
+});
 }
 
 function updateDashboard() {
