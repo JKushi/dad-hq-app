@@ -62,7 +62,7 @@ function showRandomFamilyImage() {
 
 pickMeUpBtn.addEventListener(
   "click",
-  async function () {
+  function () {
 
     showRandomFamilyImage();
 
@@ -80,25 +80,35 @@ pickMeUpBtn.addEventListener(
     const selectedMessage =
       kidMessages[randomIndex];
 
-    const audio =
-      new Audio(selectedMessage.url);
+    playDriveAudio(selectedMessage);
 
-    try {
-
-      await audio.play();
-
-      messageLabel.textContent =
-        `Playing: ${selectedMessage.name}`;
-
-    } catch (error) {
-
-      console.error(error);
-
-      messageLabel.textContent =
-        "Could not play audio.";
-    }
+    messageLabel.textContent =
+      `Playing: ${selectedMessage.name}`;
   }
 );
+
+function playDriveAudio(selectedMessage) {
+
+  let audioFrame =
+    document.getElementById("driveAudioPlayer");
+
+  if (!audioFrame) {
+
+    audioFrame =
+      document.createElement("iframe");
+
+    audioFrame.id =
+      "driveAudioPlayer";
+
+    audioFrame.style.display =
+      "none";
+
+    document.body.appendChild(audioFrame);
+  }
+
+  audioFrame.src =
+    selectedMessage.previewUrl;
+}
 
 function updateDashboard() {
 
