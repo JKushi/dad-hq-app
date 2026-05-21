@@ -1,4 +1,4 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwK08hGnIQXWmwvIQQXX4WRCBla9m8_bWdYKkSAg8AtMTvqN9d9qO4H20HAONyss91T/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxgJ4qpsFfIS0rL_0soJn6L7Sr1CS6luyu0ghIFkNlrVOU4yCn6L5Kpp8lf6WaAaXpVWA/exec";
 
 const familyImages = [
   "assets/images/2BDVMC2X-102372.jpg",
